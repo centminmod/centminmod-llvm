@@ -4,13 +4,15 @@
 ######################################################
 # variables
 #############
-DT=`date +"%d%m%y-%H%M%S"`
+DT=$(date +"%d%m%y-%H%M%S")
 
 BUILD_DIR=/svr-setup
 CENTMINLOGDIR=/root/centminlogs
 ######################################################
 # functions
 #############
+CENTOSVER=$(awk '{ print $3 }' /etc/redhat-release)
+
 if [ -f /proc/user_beancounters ]; then
     # CPUS='1'
     # MAKETHREADS=" -j$CPUS"
@@ -64,7 +66,15 @@ fi
 
 buildllvm() {
   time yum -y install cmake3 svn
+  mkdir -p /home/buildtmp
+  chmod -R 1777 /home/buildtmp
+  export TMPDIR=/home/buildtmp
+  export CC="/usr/bin/gcc"
+  export CXX="/usr/bin/g++"
+
   cd "$BUILD_DIR"
+  rm -rf llvm
+  rm -rf "$BUILD_DIR/llvm.build/"
   time svn co http://llvm.org/svn/llvm-project/llvm/branches/release_40/ llvm
   cd llvm/tools
   time svn co http://llvm.org/svn/llvm-project/cfe/branches/release_40/ clang
@@ -81,6 +91,7 @@ buildllvm() {
 }
 ######################################################
 starttime=$(TZ=UTC date +%s.%N)
+{
   buildllvm
 } 2>&1 | tee ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 
