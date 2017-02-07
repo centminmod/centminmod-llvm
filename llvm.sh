@@ -106,7 +106,13 @@ buildllvmgold() {
   fi
   time make${MAKETHREADS} all-gold
   time make${MAKETHREADS}
-  gold/ld-new -v
+  time make install
+  echo "/usr/local/bin/ld -v"
+  /usr/local/bin/ld -v
+  echo "/usr/local/bin/ld.gold -v"
+  /usr/local/bin/ld.gold -v
+  echo "/usr/local/bin/ld.bfd -v"
+  /usr/local/bin/ld.bfd -v
 }
 
 buildllvm() {
