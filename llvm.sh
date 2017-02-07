@@ -5,6 +5,8 @@
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
+BINUTILS_VER='2.27'
+LLVM_FOURGOLDGIT='n'
 
 BUILD_DIR=/svr-setup
 CENTMINLOGDIR=/root/centminlogs
@@ -64,13 +66,77 @@ if [[ "$CENTOS_SEVEN" != '7' ]]; then
   exit
 fi
 
-buildllvm() {
-  time yum -y install cmake3 svn
+yuminstall_llvm() {
+  if [[ ! "$(rpm -ql cmake3)" || ! "$(rpm -ql svn)" ]]; then
+    time yum -y install cmake3 svn
+  fi
+}
+
+buildllvmgold() {
+  # http://llvm.org/docs/GoldPlugin.html
   mkdir -p /home/buildtmp
   chmod -R 1777 /home/buildtmp
   export TMPDIR=/home/buildtmp
   export CC="/usr/bin/gcc"
   export CXX="/usr/bin/g++"
+
+  cd "$BUILD_DIR"
+  rm -rf llvmgold.binutils
+  if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
+    git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils
+  else
+    if [[ ! -f "binutils-${BINUTILS_VER}.tar.gz" || ! -d "binutils-${BINUTILS_VER}" ]]; then
+      wget -cnv "https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VER}.tar.gz"
+      tar xvzf "binutils-${BINUTILS_VER}.tar.gz"
+    fi
+  fi
+  mkdir -p llvmgold.binutils
+  cd llvmgold.binutils
+  if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
+    ../binutils/configure --enable-gold --enable-plugins --disable-werror
+  else
+    ../binutils-${BINUTILS_VER}/configure --enable-gold --enable-plugins --disable-werror
+  fi
+  if [[ "CPUS" -gt '8' ]]; then
+    MAKETHREADS=' -j4'
+  elif [[ "$CPUS" -le '8' && "CPUS" -gt '4' ]]; then
+    MAKETHREADS=' -j2'
+  elif [[ "$CPUS" -le '4' ]]; then
+    MAKETHREADS=' -j1'
+  fi
+  time make${MAKETHREADS} all-gold
+  time make${MAKETHREADS}
+  gold/ld-new -v
+}
+
+buildllvm() {
+  mkdir -p /home/buildtmp
+  chmod -R 1777 /home/buildtmp
+  export TMPDIR=/home/buildtmp
+  export CC="/usr/bin/gcc"
+  export CXX="/usr/bin/g++"
+
+if [ -f /proc/user_beancounters ]; then
+    # CPUS='1'
+    # MAKETHREADS=" -j$CPUS"
+    # speed up make
+    CPUS=$(grep -c "processor" /proc/cpuinfo)
+    if [[ "$CPUS" -gt '8' ]]; then
+        CPUS=$(echo "$CPUS+2" | bc)
+    else
+        CPUS=$(echo "$CPUS+1" | bc)
+    fi
+    MAKETHREADS=" -j$CPUS"
+else
+    # speed up make
+    CPUS=$(grep -c "processor" /proc/cpuinfo)
+    if [[ "$CPUS" -gt '8' ]]; then
+        CPUS=$(echo "$CPUS+2" | bc)
+    else
+        CPUS=$(echo "$CPUS+1" | bc)
+    fi
+    MAKETHREADS=" -j$CPUS"
+fi
 
   cd "$BUILD_DIR"
   rm -rf llvm
@@ -85,13 +151,20 @@ buildllvm() {
   cd ../..
   mkdir llvm.build
   cd llvm.build
-  time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm ../llvm
+  if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
+    time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+  else
+    time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm ../llvm
+  fi
   time make${MAKETHREADS}
   time make install
+  find . -name "LLVMgold.so"
 }
 ######################################################
 starttime=$(TZ=UTC date +%s.%N)
 {
+  yuminstall_llvm
+  buildllvmgold
   buildllvm
 } 2>&1 | tee ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 
