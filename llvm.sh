@@ -8,7 +8,7 @@ DT=$(date +"%d%m%y-%H%M%S")
 BINUTILS_VER='2.28'
 BINUTILS_ALWAYS='y'
 # release_40 or release_50
-CLANG_RELEASE='release_40'
+CLANG_RELEASE='release_50'
 # build both clang 4 and 5
 CLANG_ALL='y'
 LLVM_FOURGOLDGIT='n'
@@ -22,6 +22,8 @@ CENTOSVER=$(awk '{ print $3 }' /etc/redhat-release)
 
 if [[ "$CLANG_ALL" = [yY] ]]; then
   CLANG_RELEASE='release_40 release_50'
+else
+  CLANG_RELEASE=$CLANG_RELEASE
 fi
 
 if [ -f /proc/user_beancounters ]; then
@@ -81,6 +83,16 @@ yuminstall_llvm() {
   fi
   if [[ ! -f /usr/bin/svn ]]; then
     time yum -y install svn
+  fi
+  if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+    DEVTOOLSET='y'
+    export CC=/opt/rh/devtoolset-6/root/bin/gcc
+    export CXX=/opt/rh/devtoolset-6/root/bin/g++
+  elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+    /usr/local/src/centminmod/addons/devtoolset-6.sh
+    export CC=/opt/rh/devtoolset-6/root/bin/gcc
+    export CXX=/opt/rh/devtoolset-6/root/bin/g++
+    DEVTOOLSET='y'
   fi
 }
 
@@ -174,9 +186,17 @@ fi
     mkdir llvm.build
     cd llvm.build
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
-      time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+      if [[ "$DEVTOOLSET" = [yY] ]]; then
+        time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+      else
+        time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+      fi
     else
-      time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+      if [[ "$DEVTOOLSET" = [yY] ]]; then
+        time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+      else
+        time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+      fi
     fi
     time make${MAKETHREADS}
     time make install
