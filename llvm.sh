@@ -1,6 +1,6 @@
 #!/bin/bash
 ######################################################
-# llvm 4 or 5 compile for centos 7
+# llvm 4 & 5 compile for centos 7
 ######################################################
 # variables
 #############
@@ -9,6 +9,8 @@ BINUTILS_VER='2.28'
 BINUTILS_ALWAYS='y'
 # release_40 or release_50
 CLANG_RELEASE='release_40'
+# build both clang 4 and 5
+CLANG_ALL='y'
 LLVM_FOURGOLDGIT='n'
 
 BUILD_DIR=/svr-setup
@@ -17,6 +19,10 @@ CENTMINLOGDIR=/root/centminlogs
 # functions
 #############
 CENTOSVER=$(awk '{ print $3 }' /etc/redhat-release)
+
+if [[ "$CLANG_ALL" = [yY] ]]; then
+  CLANG_RELEASE='release_40 release_50'
+fi
 
 if [ -f /proc/user_beancounters ]; then
     # CPUS='1'
@@ -153,27 +159,32 @@ else
     MAKETHREADS=" -j$CPUS"
 fi
 
-  cd "$BUILD_DIR"
-  rm -rf llvm
-  rm -rf "$BUILD_DIR/llvm.build/"
-  time svn co http://llvm.org/svn/llvm-project/llvm/branches/${CLANG_RELEASE}/ llvm
-  cd llvm/tools
-  time svn co http://llvm.org/svn/llvm-project/cfe/branches/${CLANG_RELEASE}/ clang
-  cd clang/tools
-  time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${CLANG_RELEASE}/ extra
-  cd ../../../projects
-  time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${CLANG_RELEASE}/ compiler-rt
-  cd ../..
-  mkdir llvm.build
-  cd llvm.build
-  if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
-    time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
-  else
-    time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm ../llvm
-  fi
-  time make${MAKETHREADS}
-  time make install
-  find . -name "LLVMgold.so"
+  for v in $CLANG_RELEASE; do
+    cd "$BUILD_DIR"
+    rm -rf llvm
+    rm -rf "$BUILD_DIR/llvm.build/"
+    time svn co http://llvm.org/svn/llvm-project/llvm/branches/${v}/ llvm
+    cd llvm/tools
+    time svn co http://llvm.org/svn/llvm-project/cfe/branches/${v}/ clang
+    cd clang/tools
+    time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${v}/ extra
+    cd ../../../projects
+    time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${v}/ compiler-rt
+    cd ../..
+    mkdir llvm.build
+    cd llvm.build
+    if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
+      time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+    else
+      time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+    fi
+    time make${MAKETHREADS}
+    time make install
+    find . -name "LLVMgold.so"
+    echo "/opt/sbin/llvm-${v}/bin/clang -v"
+    /opt/sbin/llvm-${v}/bin/clang -v
+    echo
+  done
 }
 ######################################################
 starttime=$(TZ=UTC date +%s.%N)
@@ -188,8 +199,16 @@ starttime=$(TZ=UTC date +%s.%N)
   /usr/local/bin/ld.gold -v
   echo "/usr/local/bin/ld.bfd -v"
   /usr/local/bin/ld.bfd -v
-  echo "/opt/sbin/llvm/bin/clang -v"
-  /opt/sbin/llvm/bin/clang -v
+  if [[ "$CLANG_ALL" = [yY] ]]; then
+    echo "/opt/sbin/llvm-release_40/bin/clang -v"
+    /opt/sbin/llvm-release_40/bin/clang -v
+    echo
+    echo "/opt/sbin/llvm-release_50/bin/clang -v"
+    /opt/sbin/llvm-release_50/bin/clang -v
+  else
+    echo "/opt/sbin/llvm-release_40/bin/clang -v"
+    /opt/sbin/llvm-release_40/bin/clang -v
+  fi
   echo
   echo "tail -1 ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log"
 } 2>&1 | tee ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
@@ -198,7 +217,9 @@ endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
 echo "" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
-if [[ "$CLANG_RELEASE" = 'release_40' ]]; then
+if [[ "$CLANG_ALL" = [yY] ]]; then
+  echo "Total LLVM 4 & 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+elif [[ "$CLANG_RELEASE" = 'release_40' ]]; then
   echo "Total LLVM 4 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 elif [[ "$CLANG_RELEASE" = 'release_50' ]]; then
   echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
