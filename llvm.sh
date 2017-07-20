@@ -6,6 +6,7 @@
 #############
 DT=$(date +"%d%m%y-%H%M%S")
 BINUTILS_VER='2.28'
+BINUTILS_ALWAYS='y'
 # release_40 or release_50
 CLANG_RELEASE='release_40'
 LLVM_FOURGOLDGIT='n'
@@ -79,7 +80,7 @@ yuminstall_llvm() {
 
 buildllvmgold() {
   # skip llvmgold compile if binutils version matches the source compiled version already or if doesn't exist
-  if [[ ! -f /usr/local/bin/ld ]] || [[ -f /usr/local/bin/ld && "$(/usr/local/bin/ld -v | awk '{print $5}')" != "$BINUTILS_VER" ]]; then
+  if [[ "$BINUTILS_ALWAYS" = [yY] ]] || [[ ! -f /usr/local/bin/ld ]] || [[ -f /usr/local/bin/ld && "$(/usr/local/bin/ld -v | awk '{print $5}')" != "$BINUTILS_VER" ]]; then
     # http://llvm.org/docs/GoldPlugin.html
     mkdir -p /home/buildtmp
     chmod -R 1777 /home/buildtmp
