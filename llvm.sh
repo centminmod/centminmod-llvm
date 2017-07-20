@@ -1,11 +1,13 @@
 #!/bin/bash
 ######################################################
-# llvm 4 compile for centos 7
+# llvm 4 or 5 compile for centos 7
 ######################################################
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
-BINUTILS_VER='2.27'
+BINUTILS_VER='2.28'
+# release_40 or release_50
+CLANG_RELEASE='release_40'
 LLVM_FOURGOLDGIT='n'
 
 BUILD_DIR=/svr-setup
@@ -147,13 +149,13 @@ fi
   cd "$BUILD_DIR"
   rm -rf llvm
   rm -rf "$BUILD_DIR/llvm.build/"
-  time svn co http://llvm.org/svn/llvm-project/llvm/branches/release_40/ llvm
+  time svn co http://llvm.org/svn/llvm-project/llvm/branches/${CLANG_RELEASE}/ llvm
   cd llvm/tools
-  time svn co http://llvm.org/svn/llvm-project/cfe/branches/release_40/ clang
+  time svn co http://llvm.org/svn/llvm-project/cfe/branches/${CLANG_RELEASE}/ clang
   cd clang/tools
-  time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/release_40/ extra
+  time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${CLANG_RELEASE}/ extra
   cd ../../../projects
-  time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/release_40/ compiler-rt
+  time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${CLANG_RELEASE}/ compiler-rt
   cd ../..
   mkdir llvm.build
   cd llvm.build
