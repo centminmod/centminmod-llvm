@@ -69,10 +69,10 @@ if [[ "$CENTOS_SEVEN" != '7' ]]; then
 fi
 
 yuminstall_llvm() {
-  if [[ ! "$(rpm -ql cmake3)" ]]; then
+  if [[ ! -f /usr/bin/cmake3 ]]; then
     time yum -y install cmake3
   fi
-  if [[ ! "$(rpm -ql svn)" ]]; then
+  if [[ ! -f /usr/bin/svn ]]; then
     time yum -y install svn
   fi
 }
