@@ -177,6 +177,15 @@ starttime=$(TZ=UTC date +%s.%N)
   yuminstall_llvm
   buildllvmgold
   buildllvm
+  echo
+  echo "/usr/local/bin/ld -v"
+  /usr/local/bin/ld -v
+  echo "/usr/local/bin/ld.gold -v"
+  /usr/local/bin/ld.gold -v
+  echo "/usr/local/bin/ld.bfd -v"
+  /usr/local/bin/ld.bfd -v
+  echo "/opt/sbin/llvm/bin/clang -v"
+  /opt/sbin/llvm/bin/clang -v
 } 2>&1 | tee ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 
 endtime=$(TZ=UTC date +%s.%N)
