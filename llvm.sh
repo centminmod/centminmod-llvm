@@ -78,46 +78,49 @@ yuminstall_llvm() {
 }
 
 buildllvmgold() {
-  # http://llvm.org/docs/GoldPlugin.html
-  mkdir -p /home/buildtmp
-  chmod -R 1777 /home/buildtmp
-  export TMPDIR=/home/buildtmp
-  export CC="/usr/bin/gcc"
-  export CXX="/usr/bin/g++"
-
-  cd "$BUILD_DIR"
-  rm -rf llvmgold.binutils
-  if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
-    git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils
-  else
-    if [[ ! -f "binutils-${BINUTILS_VER}.tar.gz" || ! -d "binutils-${BINUTILS_VER}" ]]; then
-      wget -cnv "https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VER}.tar.gz"
-      tar xvzf "binutils-${BINUTILS_VER}.tar.gz"
+  # skip llvmgold compile if binutils version matches the source compiled version already or if doesn't exist
+  if [[ ! -f /usr/local/bin/ld ]] || [[ -f /usr/local/bin/ld && "$(/usr/local/bin/ld -v | awk '{print $5}')" != "$BINUTILS_VER" ]]; then
+    # http://llvm.org/docs/GoldPlugin.html
+    mkdir -p /home/buildtmp
+    chmod -R 1777 /home/buildtmp
+    export TMPDIR=/home/buildtmp
+    export CC="/usr/bin/gcc"
+    export CXX="/usr/bin/g++"
+  
+    cd "$BUILD_DIR"
+    rm -rf llvmgold.binutils
+    if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
+      git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils
+    else
+      if [[ ! -f "binutils-${BINUTILS_VER}.tar.gz" || ! -d "binutils-${BINUTILS_VER}" ]]; then
+        wget -cnv "https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VER}.tar.gz"
+        tar xvzf "binutils-${BINUTILS_VER}.tar.gz"
+      fi
     fi
+    mkdir -p llvmgold.binutils
+    cd llvmgold.binutils
+    if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
+      ../binutils/configure --enable-gold --enable-plugins --disable-werror
+    else
+      ../binutils-${BINUTILS_VER}/configure --enable-gold --enable-plugins --disable-werror
+    fi
+    if [[ "CPUS" -gt '8' ]]; then
+      MAKETHREADS=' -j4'
+    elif [[ "$CPUS" -le '8' && "CPUS" -gt '4' ]]; then
+      MAKETHREADS=' -j2'
+    elif [[ "$CPUS" -le '4' ]]; then
+      MAKETHREADS=' -j1'
+    fi
+    time make${MAKETHREADS} all-gold
+    time make${MAKETHREADS}
+    time make install
+    echo "/usr/local/bin/ld -v"
+    /usr/local/bin/ld -v
+    echo "/usr/local/bin/ld.gold -v"
+    /usr/local/bin/ld.gold -v
+    echo "/usr/local/bin/ld.bfd -v"
+    /usr/local/bin/ld.bfd -v
   fi
-  mkdir -p llvmgold.binutils
-  cd llvmgold.binutils
-  if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
-    ../binutils/configure --enable-gold --enable-plugins --disable-werror
-  else
-    ../binutils-${BINUTILS_VER}/configure --enable-gold --enable-plugins --disable-werror
-  fi
-  if [[ "CPUS" -gt '8' ]]; then
-    MAKETHREADS=' -j4'
-  elif [[ "$CPUS" -le '8' && "CPUS" -gt '4' ]]; then
-    MAKETHREADS=' -j2'
-  elif [[ "$CPUS" -le '4' ]]; then
-    MAKETHREADS=' -j1'
-  fi
-  time make${MAKETHREADS} all-gold
-  time make${MAKETHREADS}
-  time make install
-  echo "/usr/local/bin/ld -v"
-  /usr/local/bin/ld -v
-  echo "/usr/local/bin/ld.gold -v"
-  /usr/local/bin/ld.gold -v
-  echo "/usr/local/bin/ld.bfd -v"
-  /usr/local/bin/ld.bfd -v
 }
 
 buildllvm() {
