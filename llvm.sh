@@ -125,16 +125,31 @@ buildllvmgold() {
     export TMPDIR=/home/buildtmp
     if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       source /opt/rh/devtoolset-6/enable
-      export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
-      export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+      else
+        export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+      fi
     elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       /usr/local/src/centminmod/addons/devtoolset-6.sh
       source /opt/rh/devtoolset-6/enable
-      export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
-      export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+      else
+        export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+      fi
     else
-      export CC="/usr/bin/gcc -fuse-ld=gold -gsplit-dwarf"
-      export CXX="/usr/bin/g++"
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        export CC="ccache /usr/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="ccache /usr/bin/g++"
+      else
+        export CC="/usr/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+        export CXX="/usr/bin/g++"
+      fi
     fi
   
     cd "$BUILD_DIR"
@@ -278,11 +293,20 @@ starttime=$(TZ=UTC date +%s.%N)
     echo "/opt/sbin/llvm-release_40/bin/clang -v"
     /opt/sbin/llvm-release_40/bin/clang -v
     echo
+    echo "ls -lah /opt/sbin/llvm-release_40/lib/LLVMgold.so"
+    ls -lah /opt/sbin/llvm-release_40/lib/LLVMgold.so
+    echo
     echo "/opt/sbin/llvm-release_50/bin/clang -v"
     /opt/sbin/llvm-release_50/bin/clang -v
+    echo
+    echo "ls -lah /opt/sbin/llvm-release_50/lib/LLVMgold.so"
+    ls -lah /opt/sbin/llvm-release_50/lib/LLVMgold.so
   else
     echo "/opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v"
     /opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v
+    echo
+    echo "ls -lah /opt/sbin/llvm-${CLANG_RELEASE}/lib/LLVMgold.so"
+    ls -lah /opt/sbin/llvm-${CLANG_RELEASE}/lib/LLVMgold.so
   fi
   echo
   echo "tail -1 ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log"
