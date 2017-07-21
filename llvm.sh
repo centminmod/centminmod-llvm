@@ -234,9 +234,9 @@ fi
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
@@ -248,9 +248,9 @@ fi
     else
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
@@ -283,13 +283,17 @@ starttime=$(TZ=UTC date +%s.%N)
   buildllvmgold
   buildllvm
   echo
+  echo "-------------------------------------------------------------------"
   echo "/usr/local/bin/ld -v"
   /usr/local/bin/ld -v
+  echo
   echo "/usr/local/bin/ld.gold -v"
   /usr/local/bin/ld.gold -v
+  echo
   echo "/usr/local/bin/ld.bfd -v"
   /usr/local/bin/ld.bfd -v
   if [[ "$CLANG_ALL" = [yY] ]]; then
+    echo
     echo "/opt/sbin/llvm-release_40/bin/clang -v"
     /opt/sbin/llvm-release_40/bin/clang -v
     echo
@@ -302,12 +306,14 @@ starttime=$(TZ=UTC date +%s.%N)
     echo "ls -lah /opt/sbin/llvm-release_50/lib/LLVMgold.so"
     ls -lah /opt/sbin/llvm-release_50/lib/LLVMgold.so
   else
+    echo
     echo "/opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v"
     /opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v
     echo
     echo "ls -lah /opt/sbin/llvm-${CLANG_RELEASE}/lib/LLVMgold.so"
     ls -lah /opt/sbin/llvm-${CLANG_RELEASE}/lib/LLVMgold.so
   fi
+  echo "-------------------------------------------------------------------"
   echo
   echo "tail -1 ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log"
 } 2>&1 | tee ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
