@@ -6,11 +6,11 @@
 #############
 DT=$(date +"%d%m%y-%H%M%S")
 BINUTILS_VER='2.28'
-BINUTILS_ALWAYS='y'
+BINUTILS_ALWAYS='n'
 # release_40 or release_50
 CLANG_RELEASE='release_50'
 # build both clang 4 and 5
-CLANG_ALL='y'
+CLANG_ALL='n'
 LLVM_FOURGOLDGIT='n'
 NINAJABUILD='n'
 
@@ -33,18 +33,18 @@ if [ -f /proc/user_beancounters ]; then
     # speed up make
     CPUS=$(grep -c "processor" /proc/cpuinfo)
     if [[ "$CPUS" -gt '8' ]]; then
-        CPUS=$(echo "$CPUS+2" | bc)
-    else
         CPUS=$(echo "$CPUS+1" | bc)
+    else
+        CPUS=$(echo "$CPUS" | bc)
     fi
     MAKETHREADS=" -j$CPUS"
 else
     # speed up make
     CPUS=$(grep -c "processor" /proc/cpuinfo)
     if [[ "$CPUS" -gt '8' ]]; then
-        CPUS=$(echo "$CPUS+2" | bc)
-    else
         CPUS=$(echo "$CPUS+1" | bc)
+    else
+        CPUS=$(echo "$CPUS" | bc)
     fi
     MAKETHREADS=" -j$CPUS"
 fi
@@ -90,10 +90,12 @@ yuminstall_llvm() {
   fi
   if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     DEVTOOLSET='y'
+    source /opt/rh/devtoolset-6/enable
     export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
     export CXX="/opt/rh/devtoolset-6/root/bin/g++"
   elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     /usr/local/src/centminmod/addons/devtoolset-6.sh
+    source /opt/rh/devtoolset-6/enable
     export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
     export CXX="/opt/rh/devtoolset-6/root/bin/g++"
     DEVTOOLSET='y'
@@ -108,10 +110,12 @@ buildllvmgold() {
     chmod -R 1777 /home/buildtmp
     export TMPDIR=/home/buildtmp
     if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+      source /opt/rh/devtoolset-6/enable
       export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
       export CXX="/opt/rh/devtoolset-6/root/bin/g++"
     elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       /usr/local/src/centminmod/addons/devtoolset-6.sh
+      source /opt/rh/devtoolset-6/enable
       export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
       export CXX="/opt/rh/devtoolset-6/root/bin/g++"
     else
