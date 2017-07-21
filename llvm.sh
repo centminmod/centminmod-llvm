@@ -13,6 +13,7 @@ CLANG_RELEASE='release_50'
 CLANG_ALL='n'
 LLVM_FOURGOLDGIT='n'
 LLVM_LTO='n'
+LLVM_CCACHE='y'
 NINAJABUILD='n'
 
 BUILD_DIR=/svr-setup
@@ -32,6 +33,12 @@ if [[ "$LLVM_LTO" = [yY] ]]; then
   LTO_VALUE=On
 else
   LTO_VALUE=Off
+fi
+
+if [[ "$LLVM_CCACHE" = [yY] ]]; then
+  LLVM_CCACHEOPT=' -DLLVM_CCACHE_BUILD=On'
+else
+  LLVM_CCACHEOPT=''
 fi
 
 if [ -f /proc/user_beancounters ]; then
@@ -212,9 +219,9 @@ fi
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
@@ -226,9 +233,9 @@ fi
     else
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
