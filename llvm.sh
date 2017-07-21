@@ -155,9 +155,9 @@ if [ -f /proc/user_beancounters ]; then
     # speed up make
     CPUS=$(grep -c "processor" /proc/cpuinfo)
     if [[ "$CPUS" -gt '8' ]]; then
-        CPUS=$(echo "$CPUS+2" | bc)
-    else
         CPUS=$(echo "$CPUS+1" | bc)
+    else
+        CPUS=$(echo "$CPUS" | bc)
     fi
     MAKETHREADS=" -j$CPUS"
 else
