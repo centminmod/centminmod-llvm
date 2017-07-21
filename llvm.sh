@@ -205,9 +205,9 @@ fi
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=On -DLLVM_USE_LINKER=gold -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=On -DLLVM_USE_LINKER=gold -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
@@ -219,9 +219,9 @@ fi
     else
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=On -DLLVM_USE_LINKER=gold ../llvm
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=On -DLLVM_USE_LINKER=gold ../llvm
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
