@@ -12,6 +12,7 @@ CLANG_RELEASE='release_50'
 # build both clang 4 and 5
 CLANG_ALL='y'
 LLVM_FOURGOLDGIT='n'
+NINAJABUILD='n'
 
 BUILD_DIR=/svr-setup
 CENTMINLOGDIR=/root/centminlogs
@@ -84,14 +85,17 @@ yuminstall_llvm() {
   if [[ ! -f /usr/bin/svn ]]; then
     time yum -y install svn
   fi
+  if [[ ! -f /usr/bin/ninja-build ]]; then
+    yum -y install ninja-build
+  fi
   if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     DEVTOOLSET='y'
-    export CC=/opt/rh/devtoolset-6/root/bin/gcc
-    export CXX=/opt/rh/devtoolset-6/root/bin/g++
+    export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
+    export CXX="/opt/rh/devtoolset-6/root/bin/g++"
   elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     /usr/local/src/centminmod/addons/devtoolset-6.sh
-    export CC=/opt/rh/devtoolset-6/root/bin/gcc
-    export CXX=/opt/rh/devtoolset-6/root/bin/g++
+    export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
+    export CXX="/opt/rh/devtoolset-6/root/bin/g++"
     DEVTOOLSET='y'
   fi
 }
@@ -103,8 +107,17 @@ buildllvmgold() {
     mkdir -p /home/buildtmp
     chmod -R 1777 /home/buildtmp
     export TMPDIR=/home/buildtmp
-    export CC="/usr/bin/gcc"
-    export CXX="/usr/bin/g++"
+    if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+      export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
+      export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+      /usr/local/src/centminmod/addons/devtoolset-6.sh
+      export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
+      export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+    else
+      export CC="/usr/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+      export CXX="/usr/bin/g++"
+    fi
   
     cd "$BUILD_DIR"
     rm -rf llvmgold.binutils
@@ -187,19 +200,43 @@ fi
     cd llvm.build
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
       if [[ "$DEVTOOLSET" = [yY] ]]; then
-        time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        if [[ "$NINAJABUILD" = [yY] ]]; then
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        else
+          time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        fi
       else
-        time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        if [[ "$NINAJABUILD" = [yY] ]]; then
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        else
+          time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+        fi
       fi
     else
       if [[ "$DEVTOOLSET" = [yY] ]]; then
-        time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+        if [[ "$NINAJABUILD" = [yY] ]]; then
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+        else
+          time cmake3 -G "Unix Makefiles" -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+        fi
       else
-        time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} ../llvm
+        if [[ "$NINAJABUILD" = [yY] ]]; then
+          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+        else
+          time cmake3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DLLVM_TARGETS_TO_BUILD="X86" ../llvm
+        fi
       fi
     fi
-    time make${MAKETHREADS}
-    time make install
+    if [[ "$NINAJABUILD" = [yY] ]]; then
+      ln -s $PWD/compile_commands.json ../llvm
+      ninja-build${MAKETHREADS}
+      ninja-build check-all
+      ninja-build install
+    else
+      time make${MAKETHREADS}
+      time make install
+    fi
+    echo
     find . -name "LLVMgold.so"
     echo "/opt/sbin/llvm-${v}/bin/clang -v"
     /opt/sbin/llvm-${v}/bin/clang -v
