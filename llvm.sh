@@ -226,8 +226,8 @@ starttime=$(TZ=UTC date +%s.%N)
     echo "/opt/sbin/llvm-release_50/bin/clang -v"
     /opt/sbin/llvm-release_50/bin/clang -v
   else
-    echo "/opt/sbin/llvm-release_40/bin/clang -v"
-    /opt/sbin/llvm-release_40/bin/clang -v
+    echo "/opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v"
+    /opt/sbin/llvm-${CLANG_RELEASE}/bin/clang -v
   fi
   echo
   echo "tail -1 ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log"
