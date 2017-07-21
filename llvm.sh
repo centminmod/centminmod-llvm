@@ -208,8 +208,8 @@ buildllvm() {
   mkdir -p /home/buildtmp
   chmod -R 1777 /home/buildtmp
   export TMPDIR=/home/buildtmp
-  export CC="/usr/bin/gcc"
-  export CXX="/usr/bin/g++"
+  # export CC="/usr/bin/gcc"
+  # export CXX="/usr/bin/g++"
 
 if [ -f /proc/user_beancounters ]; then
     # CPUS='1'
