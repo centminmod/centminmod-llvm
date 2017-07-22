@@ -14,6 +14,7 @@ CLANG_ALL='n'
 LLVM_FOURGOLDGIT='n'
 LLVM_LTO='n'
 LLVM_CCACHE='y'
+LLVM_WITHCLANG='n'
 NINAJABUILD='n'
 
 BUILD_DIR=/svr-setup
@@ -250,9 +251,31 @@ fi
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
       if [[ "$DEVTOOLSET" = [yY] ]]; then
         if [[ "$NINAJABUILD" = [yY] ]]; then
-          time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          if [[ "$v" = 'release_50' && -f /opt/sbin/llvm-release_40/bin/clang && "$LLVM_WITHCLANG" = [yY] ]]; then
+            if [[ "$LLVM_CCACHE" = [yY] ]]; then
+              export CC="ccache /opt/sbin/llvm-release_40/bin/clang -fuse-ld=gold -gsplit-dwarf"
+              export CXX="ccache /opt/sbin/llvm-release_40/bin/clang++"
+            else
+              export CC="/opt/sbin/llvm-release_40/bin/clang -fuse-ld=gold -gsplit-dwarf"
+              export CXX="/opt/sbin/llvm-release_40/bin/clang++"
+            fi
+            time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/sbin/llvm-release_40/bin/clang -DCMAKE_CXX_COMPILER=/opt/sbin/llvm-release_40/bin/clang++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/sbin/llvm-release_40/lib -L/opt/sbin/llvm-release_40/lib" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/sbin/llvm-release_40/bin/llvm-ranlib -DCMAKE_AR=/opt/sbin/llvm-release_40/bin/llvm-ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          else
+            time cmake3 -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          fi
         else
-          time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          if [[ "$v" = 'release_50' && -f /opt/sbin/llvm-release_40/bin/clang && "$LLVM_WITHCLANG" = [yY] ]]; then
+            if [[ "$LLVM_CCACHE" = [yY] ]]; then
+              export CC="ccache /opt/sbin/llvm-release_40/bin/clang -fuse-ld=gold -gsplit-dwarf"
+              export CXX="ccache /opt/sbin/llvm-release_40/bin/clang++"
+            else
+              export CC="/opt/sbin/llvm-release_40/bin/clang -fuse-ld=gold -gsplit-dwarf"
+              export CXX="/opt/sbin/llvm-release_40/bin/clang++"
+            fi
+            time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/sbin/llvm-release_40/bin/clang -DCMAKE_CXX_COMPILER=/opt/sbin/llvm-release_40/bin/clang++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/sbin/llvm-release_40/lib -L/opt/sbin/llvm-release_40/lib" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/sbin/llvm-release_40/bin/llvm-ranlib -DCMAKE_AR=/opt/sbin/llvm-release_40/bin/llvm-ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          else
+            time cmake3 -G "Unix Makefiles" -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/bin/g++ -DCMAKE_CXX_LINK_FLAGS="-Wl,-rpath,/opt/rh/devtoolset-6/root/usr/lib64 -L/opt/rh/devtoolset-6/root/usr/lib64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sbin/llvm-${v} -DCMAKE_RANLIB=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ranlib -DCMAKE_AR=/opt/rh/devtoolset-6/root/usr/libexec/gcc/x86_64-redhat-linux/6.2.1/ar -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_LTO=${LTO_VALUE} -DLLVM_USE_LINKER=gold${LLVM_CCACHEOPT} -DLLVM_BINUTILS_INCDIR="$BUILD_DIR/binutils-${BINUTILS_VER}/include" ../llvm
+          fi
         fi
       else
         if [[ "$NINAJABUILD" = [yY] ]]; then
