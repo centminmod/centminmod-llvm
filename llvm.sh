@@ -14,7 +14,7 @@ CLANG_ALL='n'
 LLVM_FOURGOLDGIT='n'
 LLVM_LTO='n'
 LLVM_CCACHE='y'
-NINAJABUILD='n'
+NINAJABUILD='y'
 
 BUILD_DIR=/svr-setup
 CENTMINLOGDIR=/root/centminlogs
@@ -278,7 +278,7 @@ fi
     fi
     if [[ "$NINAJABUILD" = [yY] ]]; then
       ln -s $PWD/compile_commands.json ../llvm
-      ninja-build${MAKETHREADS}
+      ninja-build
       ninja-build check-all
       ninja-build install
     else
