@@ -278,7 +278,7 @@ fi
     fi
     if [[ "$NINAJABUILD" = [yY] ]]; then
       ln -s $PWD/compile_commands.json ../llvm
-      ninja-build
+      ninja-build${MAKETHREADS}
       ninja-build check-all
       ninja-build install
     else
