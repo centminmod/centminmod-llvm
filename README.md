@@ -37,13 +37,15 @@ TLS SNI support enabled
 
 ```
 /opt/sbin/llvm-release_50/bin/clang -v
-clang version 5.0.0 (branches/release_50 308670)
+clang version 5.0.0 (branches/release_50 312822)
 Target: x86_64-unknown-linux-gnu
 Thread model: posix
 InstalledDir: /opt/sbin/llvm-release_50/bin
+Found candidate GCC installation: /opt/rh/devtoolset-4/root/usr/lib/gcc/x86_64-redhat-linux/5.3.1
+Found candidate GCC installation: /opt/rh/devtoolset-6/root/usr/lib/gcc/x86_64-redhat-linux/6.2.1
 Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.2
 Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.5
-Selected GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.5
+Selected GCC installation: /opt/rh/devtoolset-6/root/usr/lib/gcc/x86_64-redhat-linux/6.2.1
 Candidate multilib: .;@m64
 Candidate multilib: 32;@m32
 Selected multilib: .;@m64
@@ -51,7 +53,7 @@ Selected multilib: .;@m64
 
 ```
 ls -lah /opt/sbin/llvm-release_50/lib/LLVMgold.so
--rwxr-xr-x 1 root root 47M Jul 20 21:24 /opt/sbin/llvm-release_50/lib/LLVMgold.so
+-rwxr-xr-x 1 root root 27M Sep  8 21:19 /opt/sbin/llvm-release_50/lib/LLVMgold.so
 ```
 
 ```
