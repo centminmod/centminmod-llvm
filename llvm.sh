@@ -5,7 +5,7 @@
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
-BINUTILS_VER='2.29'
+BINUTILS_VER='2.29.1'
 BINUTILS_ALWAYS='n'
 # release_40 or release_50
 CLANG_RELEASE='release_50'
@@ -103,6 +103,26 @@ yuminstall_llvm() {
   if [[ ! -f /usr/bin/ninja-build ]]; then
     yum -y install ninja-build
   fi
+  if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+    DEVTOOLSET='y'
+    source /opt/rh/devtoolset-7/enable
+    gcc --version
+    # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
+    alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
+    alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
+    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+    export CXX="/opt/rh/devtoolset-7/root/bin/g++"
+  elif [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+    /usr/local/src/centminmod/addons/devtoolset-7.sh
+    source /opt/rh/devtoolset-7/enable
+    gcc --version
+    # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
+    alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
+    alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
+    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+    export CXX="/opt/rh/devtoolset-7/root/bin/g++"
+    DEVTOOLSET='y'
+  fi
   if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     DEVTOOLSET='y'
     source /opt/rh/devtoolset-6/enable
@@ -132,18 +152,40 @@ buildllvmgold() {
     mkdir -p /home/buildtmp
     chmod -R 1777 /home/buildtmp
     export TMPDIR=/home/buildtmp
-    if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
-      source /opt/rh/devtoolset-6/enable
+    if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+      /usr/local/src/centminmod/addons/devtoolset-7.sh
+      source /opt/rh/devtoolset-7/enable
       gcc --version
-      # alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --config ld
-      alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --set ld /opt/rh/devtoolset-6/root/usr/bin/ld.gold
-      alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --list
+      # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
+      alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
+      alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
       if [[ "$LLVM_CCACHE" = [yY] ]]; then
-        export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
-        export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CXX="ccache /opt/rh/devtoolset-7/root/bin/g++"
+        fi
       else
-        export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
-        export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CXX="/opt/rh/devtoolset-7/root/bin/g++"
+        fi
+      fi
+    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+      source /opt/rh/devtoolset-7/enable
+      gcc --version
+      # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
+      alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
+      alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CXX="ccache /opt/rh/devtoolset-7/root/bin/g++"
+        fi
+      else
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CXX="/opt/rh/devtoolset-7/root/bin/g++"
+        fi
       fi
     elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       /usr/local/src/centminmod/addons/devtoolset-6.sh
@@ -153,11 +195,32 @@ buildllvmgold() {
       alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --set ld /opt/rh/devtoolset-6/root/usr/bin/ld.gold
       alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --list
       if [[ "$LLVM_CCACHE" = [yY] ]]; then
-        export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
-        export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+          export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+          export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+        fi
       else
-        export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
-        export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+          export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+          export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+        fi
+      fi
+    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+      source /opt/rh/devtoolset-6/enable
+      gcc --version
+      # alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --config ld
+      alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --set ld /opt/rh/devtoolset-6/root/usr/bin/ld.gold
+      alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --list
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+          export CC="ccache /opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+          export CXX="ccache /opt/rh/devtoolset-6/root/bin/g++"
+        fi
+      else
+        if [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+          export CC="/opt/rh/devtoolset-6/root/bin/gcc -fuse-ld=gold -gsplit-dwarf"
+          export CXX="/opt/rh/devtoolset-6/root/bin/g++"
+        fi
       fi
     else
       if [[ "$LLVM_CCACHE" = [yY] ]]; then
