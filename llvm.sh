@@ -1,13 +1,14 @@
 #!/bin/bash
 ######################################################
-# llvm 4 & 5 compile for centos 7
+# llvm 4 & 5 & 6 compile for centos 7
+# for centminmod.com lemp stacks
 ######################################################
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
 BINUTILS_VER='2.29.1'
 BINUTILS_ALWAYS='n'
-# release_40 or release_50
+# release_40 or release_50 or release_60
 CLANG_RELEASE='release_50'
 # build both clang 4 and 5
 CLANG_ALL='n'
@@ -25,7 +26,7 @@ CENTMINLOGDIR=/root/centminlogs
 CENTOSVER=$(awk '{ print $3 }' /etc/redhat-release)
 
 if [[ "$CLANG_ALL" = [yY] ]]; then
-  CLANG_RELEASE='release_40 release_50'
+  CLANG_RELEASE='release_40 release_50 release_60'
 else
   CLANG_RELEASE=$CLANG_RELEASE
 fi
@@ -245,9 +246,9 @@ buildllvmgold() {
     mkdir -p llvmgold.binutils
     cd llvmgold.binutils
     if [[ "$LLVM_FOURGOLDGIT" = [yY] ]]; then
-      ../binutils/configure --enable-gold --enable-plugins --disable-werror
+      ../binutils/configure --enable-gold --enable-plugins --disable-nls --disable-werror
     else
-      ../binutils-${BINUTILS_VER}/configure --enable-gold --enable-plugins --disable-werror
+      ../binutils-${BINUTILS_VER}/configure --enable-gold --enable-plugins --disable-nls --disable-werror
     fi
     if [[ "CPUS" -gt '8' ]]; then
       MAKETHREADS=' -j4'
