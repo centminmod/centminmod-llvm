@@ -9,7 +9,7 @@ DT=$(date +"%d%m%y-%H%M%S")
 BINUTILS_VER='2.29.1'
 BINUTILS_ALWAYS='n'
 # release_40 or release_50 or release_60
-CLANG_RELEASE='release_50'
+CLANG_RELEASE='release_60'
 # build both clang 4 and 5
 CLANG_ALL='n'
 LLVM_FOURGOLDGIT='n'
@@ -430,5 +430,7 @@ if [[ "$CLANG_ALL" = [yY] ]]; then
 elif [[ "$CLANG_RELEASE" = 'release_40' ]]; then
   echo "Total LLVM 4 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 elif [[ "$CLANG_RELEASE" = 'release_50' ]]; then
+  echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+elif [[ "$CLANG_RELEASE" = 'release_60' ]]; then
   echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 fi
