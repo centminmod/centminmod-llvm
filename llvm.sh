@@ -94,6 +94,15 @@ if [[ "$CENTOS_SEVEN" != '7' ]]; then
   exit
 fi
 
+tidyup() {
+    # logs older than 5 days will be gzip compressed to save space 
+    if [ -d /root/centminlogs ]; then
+        # find /root/centminlogs -type f -mtime +3 \( -name 'tools-binutils-install_*.log"' -o -name 'tools-gcc-install*.log' \) -exec ls -lah {} \;
+        find /root/centminlogs -type f -mtime +3 \( -name 'centminmod_llvm_*.log"' -o -name 'centminmod_llvm*.log' \) -exec gzip -9 {} \;
+    fi
+}
+
+
 yuminstall_llvm() {
   if [[ ! -f /usr/bin/cmake3 ]]; then
     time yum -y install cmake3
@@ -385,6 +394,7 @@ starttime=$(TZ=UTC date +%s.%N)
   yuminstall_llvm
   buildllvmgold
   buildllvm
+  tidyup
   echo
   echo "-------------------------------------------------------------------"
   echo "/usr/local/bin/ld -v"
