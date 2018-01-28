@@ -6,7 +6,7 @@
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
-BINUTILS_VER='2.29.1'
+BINUTILS_VER='2.30'
 BINUTILS_ALWAYS='n'
 # release_40 or release_50 or release_60
 CLANG_RELEASE='release_60'
