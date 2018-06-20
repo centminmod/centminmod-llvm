@@ -324,7 +324,7 @@ fi
     rm -rf llvm
     rm -rf "$BUILD_DIR/llvm.build/"
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
-      time git clone https://github.com/llvm-mirror/llvm llvm
+      time git clone --depth=1 https://github.com/llvm-mirror/llvm llvm
       if [[ "$LLVM_BOLT" != [yY] ]]; then
         pushd llvm
         git checkout -b ${v}
@@ -335,7 +335,7 @@ fi
     fi
     cd llvm/tools
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
-      time git clone https://github.com/llvm-mirror/clang clang
+      time git clone --depth=1 https://github.com/llvm-mirror/clang clang
       if [[ "$LLVM_BOLT" != [yY] ]]; then
         pushd clang
         git checkout -b ${v}
@@ -352,7 +352,7 @@ fi
     fi
     cd clang/tools
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
-      time git clone https://github.com/llvm-mirror/clang-tools-extra extra
+      time git clone --depth=1 https://github.com/llvm-mirror/clang-tools-extra extra
       if [[ "$LLVM_BOLT" != [yY] ]]; then
         pushd extra
         git checkout -b ${v}
@@ -363,7 +363,7 @@ fi
     fi
     cd ../../../projects
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
-      time git clone https://github.com/llvm-mirror/compiler-rt compiler-rt
+      time git clone --depth=1 https://github.com/llvm-mirror/compiler-rt compiler-rt
       if [[ "$LLVM_BOLT" != [yY] ]]; then
         pushd compiler-rt
         git checkout -b ${v}
