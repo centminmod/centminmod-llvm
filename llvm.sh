@@ -16,6 +16,7 @@ LLVM_FOURGOLDGIT='n'
 LLVM_LTO='n'
 LLVM_CCACHE='y'
 LLVM_WITHCLANG='n'
+LLVM_BOLT='n'
 NINAJABUILD='n'
 
 BUILD_DIR=/svr-setup
@@ -314,11 +315,25 @@ fi
     time svn co http://llvm.org/svn/llvm-project/llvm/branches/${v}/ llvm
     cd llvm/tools
     time svn co http://llvm.org/svn/llvm-project/cfe/branches/${v}/ clang
+    if [[ "$LLVM_BOLT" = [yY] ]]; then
+      echo
+      echo "git clone https://github.com/facebookincubator/BOLT llvm-bolt"
+      git clone https://github.com/facebookincubator/BOLT llvm-bolt
+      echo
+    fi
     cd clang/tools
     time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${v}/ extra
     cd ../../../projects
     time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${v}/ compiler-rt
     cd ../..
+    if [[ "$LLVM_BOLT" = [yY] ]]; then
+      pushd llvm
+      echo
+      echo "patch -p 1 < tools/llvm-bolt/llvm.patch"
+      patch -p 1 < tools/llvm-bolt/llvm.patch
+      echo
+      popd
+    fi
     mkdir llvm.build
     cd llvm.build
     if [[ -f "$BUILD_DIR/binutils-${BINUTILS_VER}/include/plugin-api.h" ]]; then
