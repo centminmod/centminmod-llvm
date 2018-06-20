@@ -12,6 +12,8 @@ BINUTILS_ALWAYS='n'
 CLANG_RELEASE='release_60'
 # build both clang 4 and 5
 CLANG_ALL='n'
+# LLVM
+LLVM_USEGITHUB='n'
 LLVM_FOURGOLDGIT='n'
 LLVM_LTO='n'
 LLVM_CCACHE='y'
@@ -312,9 +314,19 @@ fi
     cd "$BUILD_DIR"
     rm -rf llvm
     rm -rf "$BUILD_DIR/llvm.build/"
-    time svn co http://llvm.org/svn/llvm-project/llvm/branches/${v}/ llvm
+    if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
+      time git clone https://github.com/llvm-mirror/llvm llvm
+      git checkout -b ${v}
+    else
+      time svn co http://llvm.org/svn/llvm-project/llvm/branches/${v}/ llvm
+    fi
     cd llvm/tools
-    time svn co http://llvm.org/svn/llvm-project/cfe/branches/${v}/ clang
+    if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
+      time git clone https://github.com/llvm-mirror/clang clang
+      git checkout -b ${v}
+    else
+      time svn co http://llvm.org/svn/llvm-project/cfe/branches/${v}/ clang
+    fi
     if [[ "$LLVM_BOLT" = [yY] ]]; then
       echo
       echo "git clone https://github.com/facebookincubator/BOLT llvm-bolt"
@@ -322,9 +334,19 @@ fi
       echo
     fi
     cd clang/tools
-    time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${v}/ extra
+    if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
+      time git clone https://github.com/llvm-mirror/clang-tools-extra extra
+      git checkout -b ${v}
+    else
+      time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${v}/ extra
+    fi
     cd ../../../projects
-    time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${v}/ compiler-rt
+    if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
+      time git clone https://github.com/llvm-mirror/compiler-rt compiler-rt
+      git checkout -b ${v}
+    else
+      time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${v}/ compiler-rt
+    fi
     cd ../..
     if [[ "$LLVM_BOLT" = [yY] ]]; then
       pushd llvm
