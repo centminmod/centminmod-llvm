@@ -34,6 +34,15 @@ else
   CLANG_RELEASE=$CLANG_RELEASE
 fi
 
+if [[ "$LLVM_BOLT" = [yY] ]]; then
+  LLVM_USEGITHUB='y'
+  CLANG_RELEASE='release_master'
+fi
+
+if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
+  CLANG_RELEASE='release_master'
+fi
+
 if [[ "$LLVM_LTO" = [yY] ]]; then
   LTO_VALUE=On
 else
@@ -316,14 +325,22 @@ fi
     rm -rf "$BUILD_DIR/llvm.build/"
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
       time git clone https://github.com/llvm-mirror/llvm llvm
-      git checkout -b ${v}
+      if [[ "$LLVM_BOLT" != [yY] ]]; then
+        pushd llvm
+        git checkout -b ${v}
+        popd
+      fi
     else
       time svn co http://llvm.org/svn/llvm-project/llvm/branches/${v}/ llvm
     fi
     cd llvm/tools
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
       time git clone https://github.com/llvm-mirror/clang clang
-      git checkout -b ${v}
+      if [[ "$LLVM_BOLT" != [yY] ]]; then
+        pushd clang
+        git checkout -b ${v}
+        popd
+      fi
     else
       time svn co http://llvm.org/svn/llvm-project/cfe/branches/${v}/ clang
     fi
@@ -336,14 +353,22 @@ fi
     cd clang/tools
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
       time git clone https://github.com/llvm-mirror/clang-tools-extra extra
-      git checkout -b ${v}
+      if [[ "$LLVM_BOLT" != [yY] ]]; then
+        pushd extra
+        git checkout -b ${v}
+        popd
+      fi
     else
       time svn co http://llvm.org/svn/llvm-project/clang-tools-extra/branches/${v}/ extra
     fi
     cd ../../../projects
     if [[ "$LLVM_USEGITHUB" = [yY] ]]; then
       time git clone https://github.com/llvm-mirror/compiler-rt compiler-rt
-      git checkout -b ${v}
+      if [[ "$LLVM_BOLT" != [yY] ]]; then
+        pushd compiler-rt
+        git checkout -b ${v}
+        popd
+      fi
     else
       time svn co http://llvm.org/svn/llvm-project/compiler-rt/branches/${v}/ compiler-rt
     fi
@@ -480,4 +505,6 @@ elif [[ "$CLANG_RELEASE" = 'release_50' ]]; then
   echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 elif [[ "$CLANG_RELEASE" = 'release_60' ]]; then
   echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+elif [[ "$CLANG_RELEASE" = 'release_master' ]]; then
+  echo "Total LLVM Master Branch Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 fi
