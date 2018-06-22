@@ -346,6 +346,9 @@ fi
     fi
     if [[ "$LLVM_BOLT" = [yY] ]]; then
       echo
+      echo "git checkout -b llvm-bolt f137ed238db11440f03083b1c88b7ffc0f4af65e"
+      git checkout -b llvm-bolt f137ed238db11440f03083b1c88b7ffc0f4af65e
+      echo
       echo "git clone https://github.com/facebookincubator/BOLT llvm-bolt"
       git clone https://github.com/facebookincubator/BOLT llvm-bolt
       echo
