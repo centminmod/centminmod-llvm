@@ -1,16 +1,17 @@
 #!/bin/bash
 ######################################################
-# llvm 4 & 5 & 6 compile for centos 7
+# llvm 4 & 5 & 6 & 7 & 8 compile for centos 7
 # for centminmod.com lemp stacks
 ######################################################
 # variables
 #############
 DT=$(date +"%d%m%y-%H%M%S")
-BINUTILS_VER='2.30'
+BINUTILS_VER='2.32'
 BINUTILS_ALWAYS='n'
-# release_40 or release_50 or release_60
-CLANG_RELEASE='release_60'
-# build both clang 4 and 5
+# release_40 or release_50 or release_60 or release_70
+# or release_80
+CLANG_RELEASE='release_70'
+# build both clang 6, 7 and 8
 CLANG_ALL='n'
 # LLVM
 LLVM_USEGITHUB='n'
@@ -23,13 +24,18 @@ NINAJABUILD='n'
 
 BUILD_DIR=/svr-setup
 CENTMINLOGDIR=/root/centminlogs
+
+DEVTOOLSETSIX='n'
+DEVTOOLSETSEVEN='y'
+DEVTOOLSETEIGHT='n'
+DEVTOOLSETNINE='n'
 ######################################################
 # functions
 #############
 CENTOSVER=$(awk '{ print $3 }' /etc/redhat-release)
 
 if [[ "$CLANG_ALL" = [yY] ]]; then
-  CLANG_RELEASE='release_40 release_50 release_60'
+  CLANG_RELEASE='release_60 release_70 release_80'
 else
   CLANG_RELEASE=$CLANG_RELEASE
 fi
@@ -125,23 +131,32 @@ yuminstall_llvm() {
   if [[ ! -f /usr/bin/ninja-build ]]; then
     yum -y install ninja-build
   fi
-  if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+  if [[ "$DEVTOOLSETEIGHT" = [yY] && -f /opt/rh/devtoolset-8/root/bin/gcc ]]; then
+    DEVTOOLSET='y'
+    source /opt/rh/devtoolset-8/enable
+    gcc --version
+    # alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --config ld
+    alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --set ld /opt/rh/devtoolset-8/root/usr/bin/ld.gold
+    alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --list
+    export CC="/opt/rh/devtoolset-8/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
+    export CXX="/opt/rh/devtoolset-8/root/bin/g++"
+  elif [[ "$DEVTOOLSETSEVEN" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
     DEVTOOLSET='y'
     source /opt/rh/devtoolset-7/enable
     gcc --version
     # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
     alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
     alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
-    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
     export CXX="/opt/rh/devtoolset-7/root/bin/g++"
-  elif [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+  elif [[ "$DEVTOOLSETSEVEN" = [yY] &&  -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
     /usr/local/src/centminmod/addons/devtoolset-7.sh
     source /opt/rh/devtoolset-7/enable
     gcc --version
     # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
     alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --set ld /opt/rh/devtoolset-7/root/usr/bin/ld.gold
     alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
-    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+    export CC="/opt/rh/devtoolset-7/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
     export CXX="/opt/rh/devtoolset-7/root/bin/g++"
     DEVTOOLSET='y'
   fi
@@ -154,7 +169,7 @@ yuminstall_llvm() {
     alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --list
     export CC="/opt/rh/devtoolset-6/root/bin/gcc -flto -fuse-ld=gold -gsplit-dwarf"
     export CXX="/opt/rh/devtoolset-6/root/bin/g++"
-  elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+  elif [[ "$DEVTOOLSETSIX" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
     /usr/local/src/centminmod/addons/devtoolset-6.sh
     source /opt/rh/devtoolset-6/enable
     gcc --version
@@ -174,7 +189,25 @@ buildllvmgold() {
     mkdir -p /home/buildtmp
     chmod -R 1777 /home/buildtmp
     export TMPDIR=/home/buildtmp
-    if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+    if [[ "$DEVTOOLSETEIGHT" = [yY] && -f /opt/rh/devtoolset-8/root/bin/gcc ]]; then
+      # /usr/local/src/centminmod/addons/devtoolset-8.sh
+      source /opt/rh/devtoolset-8/enable
+      gcc --version
+      # alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --config ld
+      alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --set ld /opt/rh/devtoolset-8/root/usr/bin/ld.gold
+      alternatives --altdir /opt/rh/devtoolset-8/root/etc/alternatives --admindir /opt/rh/devtoolset-8/root/var/lib/alternatives --list
+      if [[ "$LLVM_CCACHE" = [yY] ]]; then
+        if [[ -f /opt/rh/devtoolset-8/root/bin/gcc ]]; then
+          export CC="ccache /opt/rh/devtoolset-8/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
+          export CXX="ccache /opt/rh/devtoolset-8/root/bin/g++"
+        fi
+      else
+        if [[ -f /opt/rh/devtoolset-8/root/bin/gcc ]]; then
+          export CC="/opt/rh/devtoolset-8/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
+          export CXX="/opt/rh/devtoolset-8/root/bin/g++"
+        fi
+      fi
+    elif [[ "$DEVTOOLSETSEVEN" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-7.sh && ! -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
       /usr/local/src/centminmod/addons/devtoolset-7.sh
       source /opt/rh/devtoolset-7/enable
       gcc --version
@@ -183,16 +216,16 @@ buildllvmgold() {
       alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
       if [[ "$LLVM_CCACHE" = [yY] ]]; then
         if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
-          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
           export CXX="ccache /opt/rh/devtoolset-7/root/bin/g++"
         fi
       else
         if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
-          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
           export CXX="/opt/rh/devtoolset-7/root/bin/g++"
         fi
       fi
-    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
+    elif [[ "$DEVTOOLSETSEVEN" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
       source /opt/rh/devtoolset-7/enable
       gcc --version
       # alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --config ld
@@ -200,16 +233,16 @@ buildllvmgold() {
       alternatives --altdir /opt/rh/devtoolset-7/root/etc/alternatives --admindir /opt/rh/devtoolset-7/root/var/lib/alternatives --list
       if [[ "$LLVM_CCACHE" = [yY] ]]; then
         if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
-          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CC="ccache /opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
           export CXX="ccache /opt/rh/devtoolset-7/root/bin/g++"
         fi
       else
         if [[ -f /usr/local/src/centminmod/addons/devtoolset-7.sh && -f /opt/rh/devtoolset-7/root/bin/gcc ]]; then
-          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0"
+          export CC="/opt/rh/devtoolset-7/root/bin/gcc -fuse-ld=gold -gsplit-dwarf -Wimplicit-fallthrough=0 -fcode-hoisting -Wno-cast-function-type -Wno-error=cast-align -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
           export CXX="/opt/rh/devtoolset-7/root/bin/g++"
         fi
       fi
-    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+    elif [[ "$DEVTOOLSETSIX" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-6.sh && ! -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       /usr/local/src/centminmod/addons/devtoolset-6.sh
       source /opt/rh/devtoolset-6/enable
       gcc --version
@@ -227,7 +260,7 @@ buildllvmgold() {
           export CXX="/opt/rh/devtoolset-6/root/bin/g++"
         fi
       fi
-    elif [[ -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
+    elif [[ "$DEVTOOLSETSIX" = [yY] && -f /usr/local/src/centminmod/addons/devtoolset-6.sh && -f /opt/rh/devtoolset-6/root/bin/gcc ]]; then
       source /opt/rh/devtoolset-6/enable
       gcc --version
       # alternatives --altdir /opt/rh/devtoolset-6/root/etc/alternatives --admindir /opt/rh/devtoolset-6/root/var/lib/alternatives --config ld
@@ -507,7 +540,11 @@ elif [[ "$CLANG_RELEASE" = 'release_40' ]]; then
 elif [[ "$CLANG_RELEASE" = 'release_50' ]]; then
   echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 elif [[ "$CLANG_RELEASE" = 'release_60' ]]; then
-  echo "Total LLVM 5 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+  echo "Total LLVM 6 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+elif [[ "$CLANG_RELEASE" = 'release_70' ]]; then
+  echo "Total LLVM 7 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
+elif [[ "$CLANG_RELEASE" = 'release_80' ]]; then
+  echo "Total LLVM 8 Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 elif [[ "$CLANG_RELEASE" = 'release_master' ]]; then
   echo "Total LLVM Master Branch Build Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/centminmod_llvm_${DT}.log
 fi

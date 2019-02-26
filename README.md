@@ -1,6 +1,54 @@
 ## Clang Compiler Installer
 
-Clang 4.0.1, 5.0.1 and 6.0.0 + LLVM Gold Plugin Installation for Centmin Mod LEMP stacks on CentOS 7 only
+Clang 4.0.1, 5.0.1, 6.0.0, 7.1.0, 8.0.0 + LLVM Gold Plugin Installation for Centmin Mod LEMP stacks on CentOS 7 only
+
+## Clang 8.0.0
+
+```
+/opt/sbin/llvm-release_80/bin/clang -v
+clang version 8.0.0 (branches/release_80 354893)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/sbin/llvm-release_80/bin
+Found candidate GCC installation: /opt/rh/devtoolset-4/root/usr/lib/gcc/x86_64-redhat-linux/5.3.1
+Found candidate GCC installation: /opt/rh/devtoolset-6/root/usr/lib/gcc/x86_64-redhat-linux/6.3.1
+Found candidate GCC installation: /opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7
+Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.2
+Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.5
+Selected GCC installation: /opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+```
+
+```
+ls -lah /opt/sbin/llvm-release_80/lib/LLVMgold.so
+-rwxr-xr-x 1 root root 31M Feb 26 17:10 /opt/sbin/llvm-release_80/lib/LLVMgold.so
+```
+
+## Clang 7.1.0
+
+```
+/opt/sbin/llvm-release_70/bin/clang -v
+clang version 7.1.0 (branches/release_70 354890)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/sbin/llvm-release_70/bin
+Found candidate GCC installation: /opt/rh/devtoolset-4/root/usr/lib/gcc/x86_64-redhat-linux/5.3.1
+Found candidate GCC installation: /opt/rh/devtoolset-6/root/usr/lib/gcc/x86_64-redhat-linux/6.3.1
+Found candidate GCC installation: /opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7
+Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.2
+Found candidate GCC installation: /usr/lib/gcc/x86_64-redhat-linux/4.8.5
+Selected GCC installation: /opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+```
+
+```
+ls -lah /opt/sbin/llvm-release_70/lib/LLVMgold.so
+-rwxr-xr-x 1 root root 29M Feb 26 16:31 /opt/sbin/llvm-release_70/lib/LLVMgold.so
+```
 
 ## Clang 4.0.1
 
